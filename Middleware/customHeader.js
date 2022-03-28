@@ -9,7 +9,6 @@ const customHeader = (req,res,next) => {
         else { 
             res.status(403)
             res.send({error: "API key no correcta"})
-            console.log("api mala");
             }
     } catch (e) {
         res.status(403)

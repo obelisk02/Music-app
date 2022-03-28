@@ -23,7 +23,7 @@ const getItem = async (req,res) =>{
     
     try {
         req = matchedData(req);
-        const {id} = req;
+        const {id} = req; 
         const data = await tracksModel.findById(id) ;       // Funcion get ID data de Mongo
         res.send({data})
     } catch (e) {
@@ -44,17 +44,36 @@ const createItem = async (req,res) =>{
         handleHttpError (res, "ERROR_CREATE_ITEMS")
     }
 
-  
+}
+
+
+//******************************* */
+const updateItem = async (req,res) =>{
+    try {
+
+        const {id, ...body} = matchedData(req);       // saca el id y lo restante a body
     
-
+        const data = await tracksModel.findOneAndUpdate(
+            id,body
+        )              
+        res.send({data})
+        } catch (e) {
+            handleHttpError (res, "ERROR_UPDATE_ITEMS")
+        }
 }
 
-const updateItem = () =>{
 
-}
 
-const deleteItem = () =>{
-
+//********************************* */
+const deleteItem = async(req,res) =>{
+    try {
+        req = matchedData(req);
+        const {id} = req; 
+        const data = await tracksModel.delete({_id:id}) ;       // Funcion get ID data de Mongo
+        res.send({data})
+    } catch (e) {
+        handleHttpError(res,"ERROR_DELETE_ITEM")
+    }
 }
 
 

@@ -1,25 +1,40 @@
+const { matchedData } = require('express-validator')
 const {storageModel} = require('../models/index')
+const { handleHttpError } = require('../utils/handleError')
 
 const PUBLIC_URL = process.env.PUBLIC_URL
+const MEDIA_PATH = `${__dirname}/../storage`; 
 
+const fs = require('fs');
+//****************************  */
 const getItems = async (req,res) =>{
-    /* tracksModel.find({}).then((res) =>{
-         console.log(res);
-     }) */   //mongo traer todo
-
-    const data = await storageModel.find({})         // Funcion get all data de Mongo
-    res.send({data})
+   
+    try {
+        const data = await storageModel.find({})         
+        res.send({data})
+    } catch (error) {
+        handleHttpError(res, "ERROR_GET_ITEMS")
+    }
 }
 
-const getItem = (req,res) =>{
-    const data = ["item", "1"]
 
-    res.send({data})
+//**************************** */
+const getItem = async (req,res) =>{
+    try {
+        const {id} = matchedData(req);
+
+        const data = await storageModel.findById(id)         
+        res.send({data})
+    } catch (error) {
+        handleHttpError(res, "ERROR_GET_DETAILS_ITEMS")
+    }
 }
 
+
+//**************************** */
 const createItem = async (req,res) =>{
-    const {body, file} = req 
-    console.log(file);
+ try {
+    const { file} = req 
     
     // subida data a mongo imagen
     const fileData = {
@@ -29,14 +44,36 @@ const createItem = async (req,res) =>{
 
     const data = await storageModel.create(fileData)  
     res.send({data})
+ } catch (error) {
+    handleHttpError(res, "ERROR_CREATE_ITEM")
+ }
 }
 
-const updateItem = () =>{
+
+//**************************** */
+const updateItem = async(req,res) =>{
 
 }
 
-const deleteItem = () =>{
+const deleteItem = async(req,res) =>{
+    try {
+        const {id} = matchedData(req);
+        const dataFile = await storageModel.findById(id)  ;
 
+        await storageModel.deleteMany({_id:id});    // Elimina de mongo
+        
+        const {filename} = dataFile;
+        const filePath = `${MEDIA_PATH}/${filename}`
+        fs.unlinkSync(filePath) // Elimina el archivo en /storage    
+        
+        const data ={ 
+            filePath, 
+            deleted:"Correctly"
+         }
+        res.send({data})
+    } catch (error) {
+        handleHttpError(res, "ERROR_DELETE_ITEM")
+    }
 }
 
 
